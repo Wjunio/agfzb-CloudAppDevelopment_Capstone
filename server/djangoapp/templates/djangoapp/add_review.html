@@ -2,15 +2,157 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    {% load static %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <!-- {% load static %} -->
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/css/bootstrap-datepicker.css" rel="stylesheet">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script> -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/js/bootstrap-datepicker.js"></script>
-
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous"> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script> -->
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+    
 </head>
     <body>
+        <nav class="navbar navbar-light bg-light">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                      <a class="navbar-brand" href="{% url 'djangoapp:index' %}">Best Cars</a>
+                      <a class="navbar-brand" href="{% url 'djangoapp:about' %}">About</a>
+                      <a class="navbar-brand" href="{% url 'djangoapp:contact' %}">Contact</a>
+                </div>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if user.is_authenticated %}
+                    <li>
+                        <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
+                        <a class="btn btn-link" href="{% url 'djangoapp:logout' %}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <form class="form-inline" action="{% url 'djangoapp:login' %}" method="post">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Username" name="username" >
+                                <input type="password" class="form-control" placeholder="Password" name="psw" >
+                                <button class="btn btn-primary" type="submit">Login</button>
+                                <a class="btn btn-link" href="{% url 'djangoapp:register' %}">Sign Up</a>
+                            </div>
+                        </form>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <form class="form-inline" action="{% url 'djangoapp:get_dealers_by_state_abbr' %}" method="post">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <select class="form-select" name="state"  action="{% url 'djangoapp:get_dealers_by_state_abbr' %}" method="post">
+                                    <option value="">By State</option>
+                                    <option value="">All</option>
+                                    <option value="TX">TX</option>
+                                    <option value="NY">NY</option>
+                                    <option value="MN">MN</option>
+                                  </select>
+                                <!-- <input type="text" class="form-control" placeholder="2 Letter State" name="state" > -->
+                                <button class="btn btn-primary" type="submit">Search</button>
+                            </div>
+                        </form>
+                    </li>
+             </ul>
+            </div>
+        </nav>
+
+
     <!--Add review form here -->
+        <form id="MyForm" action="{% url 'djangoapp:add_review' dealer.dealer %}" method="post">
+            <div class="container"> <!--Style root div with .container class -->
+                {% csrf_token %}
+                <h1>{{dealer.name}}</h1>
+                <h1>Review</h1>
+                <hr>
+                <div class="form-group"> <!--Style second div with .form-group class -->
+                    <input type="hidden" name="id" value="{{dealer.dealer}}">
+                    <input type="hidden" name="name" value="{{dealer.name}}">
+                    <input type="hidden" name="dealership" value="{{dealer.dealership}}">
+                    <label for="review"><b>Dealer Number {{dealer.dealer}}</b></label>
+                    <!-- <input type="text" class="form-control" placeholder="Enter Review: " name="review" required> Style input with .form-control class -->
+                    <textarea class="form-control" rows="5" name="review" id="review" placeholder="Enter your review: " required></textarea>
+                    <style>
+                        .form-control:focus {
+                            box-shadow:none;
+                            border-color:green;
+                            border-width:1px;
+                            box-shadow: -1px -1px 0px 1px rgba(130, 200, 0, 0.1);
+                        }
+                      </style>
+    
+                    <!-- <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample"> -->
+                    <h3>Purchase?</h3>
+                    <!-- </button> -->
+                </div>
+                <div id="accordion">
+                    <div class="card">
+                      <div class="card-header" id="headingOne">  
+                        <h5 class="mb-0">
+                          <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <input class="form-check-input" type="radio" name="purchase" value="true" id="yes_purchase" >
+                             <label class="form-check-label" for="yes_purchase">  
+                            Yes
+                             </label>
+                          </button>
+                        </h5>
+                      </div>
+                  
+                      <div id="collapseOne" class="collapse hide" aria-labelledby="headingOne" data-parent="#accordion">
+                        <div class="card-body">
+                            <label for="purchase_date"><b>Purchase Date</b></label>
+                                    <input type="date" class="form-control" placeholder="Purchase Date" name="purchase_date" >
+                                    <label for="car_make"><b>Car Make</b></label>
+                                    <input type="text" class="form-control" placeholder="Enter Car Make " name="car_make" >
+                                    <label for="car_model"><b>Car Model</b></label>
+                                    <input type="text" class="form-control" placeholder="Enter Car Model " name="car_model" > 
+                                    <label for="car_year"><b>Car Year</b></label>
+                                    <input type="number" class="form-control" placeholder="YYYY" min="1999" max="2023" name="car_year" > 
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header" id="headingTwo">
+                        <h5 class="mb-0">
+                          <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            <input class="form-check-input" type="radio" name="purchase" value="false" id="no_purchase" checked>
+                             <label class="form-check-label" for="no_purchase">   
+                            No
+                             </label>
+                          </button>
+                        </h5>
+                      </div>
+                      <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                        <div class="card-body">
+                            No Purchase
+                        </div>
+                      </div>
+                    </div>
+                    
+                  </div> 
+                
+                    {% if message %}
+                    <div class="alert alert-warning"> <!--Style the message paragraph with .alert and .alert-warning class -->
+                        {{ message }}
+                    </div>
+                    {% endif %}
+                    <br><br>
+                    <div>
+                        <button class="btn btn-primary" type="submit">Submit Review</button> <!--Style button with .btn and .btn-primary class -->
+                    </div>
+                
+            </div>
+        
+        </form>
+       
+       
     </body>
 </html>
